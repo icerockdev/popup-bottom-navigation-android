@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.Badge
+import androidx.compose.material.BadgedBox
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -18,9 +20,12 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import dev.icerock.compose.bnn.BottomNestedNavigationItem
 import dev.icerock.compose.bnn.NestedNavigationItem
@@ -34,6 +39,7 @@ sealed interface NavItem
 data class ContentNavItem(
     val title: String,
     @DrawableRes val icon: Int,
+    val badge: Int? = null,
     val content: @Composable (PaddingValues) -> Unit
 ) : NavItem
 
@@ -41,15 +47,31 @@ data class ContentNavItem(
 data class NestedNavItem(
     val title: String,
     @DrawableRes val icon: Int,
-    val nestedItems: List<ContentNavItem>
-) : NavItem
+    val nestedItems: List<NestedItem>
+) : NavItem {
+
+    @Immutable
+    data class NestedItem(
+        val contentNavItem: ContentNavItem,
+        @DrawableRes val selectedIcon: Int
+    )
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             SampleTheme {
-                val items: List<NavItem> = remember {
+                var feedCount by remember {
+                    mutableStateOf(10)
+                }
+                var reviewsCount by remember {
+                    mutableStateOf(5)
+                }
+                var notificationsCount by remember {
+                    mutableStateOf(3)
+                }
+                val items: List<NavItem> = remember(feedCount, reviewsCount, notificationsCount) {
                     listOf(
                         ContentNavItem(
                             title = "Расписание",
@@ -61,7 +83,9 @@ class MainActivity : ComponentActivity() {
                         ContentNavItem(
                             title = "Объявления",
                             icon = R.drawable.ic_notifications,
+                            badge = notificationsCount,
                             content = {
+                                notificationsCount = 0
                                 Text(text = "Привет объявления")
                             }
                         ),
@@ -69,19 +93,29 @@ class MainActivity : ComponentActivity() {
                             title = "Мой вуз",
                             icon = R.drawable.ic_university,
                             nestedItems = listOf(
-                                ContentNavItem(
-                                    title = "Отзывы",
-                                    icon = R.drawable.ic_reviews,
-                                    content = {
-                                        Text(text = "Привет отзывы")
-                                    }
+                                NestedNavItem.NestedItem(
+                                    contentNavItem = ContentNavItem(
+                                        title = "Отзывы",
+                                        icon = R.drawable.ic_reviews,
+                                        badge = reviewsCount,
+                                        content = {
+                                            reviewsCount = 0
+                                            Text(text = "Привет отзывы")
+                                        }
+                                    ),
+                                    selectedIcon = R.drawable.ic_university_reviews
                                 ),
-                                ContentNavItem(
-                                    title = "Лента",
-                                    icon = R.drawable.ic_feed,
-                                    content = {
-                                        Text(text = "Привет лента")
-                                    }
+                                NestedNavItem.NestedItem(
+                                    contentNavItem = ContentNavItem(
+                                        title = "Лента",
+                                        icon = R.drawable.ic_feed,
+                                        badge = feedCount,
+                                        content = {
+                                            feedCount = 0
+                                            Text(text = "Привет лента")
+                                        }
+                                    ),
+                                    selectedIcon = R.drawable.ic_university_feed
                                 )
                             )
                         ),
@@ -92,17 +126,17 @@ class MainActivity : ComponentActivity() {
                                 Text(text = "Привет курсы")
                             }
                         ),
-                        ContentNavItem(
-                            title = "Настройки",
-                            icon = R.drawable.ic_settings,
-                            content = {
-                                Text(text = "Привет настройки")
-                            }
-                        )
+//                        ContentNavItem(
+//                            title = "Настройки",
+//                            icon = R.drawable.ic_settings,
+//                            content = {
+//                                Text(text = "Привет настройки")
+//                            }
+//                        )
                     )
                 }
-                val selectedItem: MutableState<ContentNavItem> = remember {
-                    mutableStateOf(items.filterIsInstance<ContentNavItem>().first())
+                val selectedItem: MutableState<Int> = remember {
+                    mutableStateOf(items.filterIsInstance<ContentNavItem>().first().icon)
                 }
 
                 Scaffold(
@@ -127,7 +161,15 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     content = { padding ->
-                        selectedItem.value.content(padding)
+                        val item: ContentNavItem = remember(items, selectedItem.value) {
+                            items.flatMap { item ->
+                                when (item) {
+                                    is ContentNavItem -> listOf(item)
+                                    is NestedNavItem -> item.nestedItems.map { it.contentNavItem }
+                                }
+                            }.single { it.icon == selectedItem.value }
+                        }
+                        item.content(padding)
                     }
                 )
             }
@@ -137,17 +179,18 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun RowScope.ContentBottomNavItem(
-    selectedItem: MutableState<ContentNavItem>,
+    selectedItem: MutableState<Int>,
     item: ContentNavItem
 ) {
+    // read painter here because icon block of BottomNavigationItem will be recomposed multiple
+    // times for animation
+    val painter: Painter = painterResource(id = item.icon)
+
     BottomNavigationItem(
-        selected = selectedItem.value == item,
-        onClick = { selectedItem.value = item },
+        selected = selectedItem.value == item.icon,
+        onClick = { selectedItem.value = item.icon },
         icon = {
-            Icon(
-                painter = painterResource(id = item.icon),
-                contentDescription = null
-            )
+            BadgedIcon(painter = painter, badge = item.badge)
         },
         label = {
             Text(text = item.title)
@@ -158,33 +201,67 @@ private fun RowScope.ContentBottomNavItem(
 @Composable
 private fun RowScope.NestedBottomNavItem(
     item: NestedNavItem,
-    selectedItem: MutableState<ContentNavItem>
+    selectedItem: MutableState<Int>
 ) {
+    var selectedNestedItem: NestedNavItem.NestedItem? by remember {
+        mutableStateOf(null)
+    }
+    val nestedContent: List<Int> = remember(item.nestedItems) {
+        item.nestedItems.map { it.contentNavItem.icon }
+    }
+
+    // read painter here because icon block of BottomNavigationItem will be recomposed multiple
+    // times for animation
+    val painter: Painter = painterResource(id = selectedNestedItem?.selectedIcon ?: item.icon)
+    val badge: Int? = remember(item.nestedItems) {
+        item.nestedItems.sumOf { it.contentNavItem.badge ?: 0 }
+            .takeIf { it != 0 }
+    }
+
     BottomNestedNavigationItem(
-        selected = item.nestedItems.contains(selectedItem.value),
+        selected = nestedContent.contains(selectedItem.value),
         icon = {
-            Icon(
-                painter = painterResource(id = item.icon),
-                contentDescription = null
-            )
-        },
-        nestedItems = item.nestedItems.map { nestedItem ->
-            NestedNavigationItem(
-                selected = selectedItem.value == nestedItem,
-                icon = {
-                    Icon(
-                        painter = painterResource(id = nestedItem.icon),
-                        contentDescription = null
-                    )
-                },
-                onClick = { selectedItem.value = nestedItem },
-                label = {
-                    Text(nestedItem.title)
-                }
-            )
+            BadgedIcon(painter = painter, badge = badge)
         },
         label = {
-            Text(text = item.title)
+            Text(text = selectedNestedItem?.contentNavItem?.title ?: item.title)
+        },
+        nestedItems = item.nestedItems.map { nestedItem ->
+            val contentNestedItem: ContentNavItem = nestedItem.contentNavItem
+            NestedNavigationItem(
+                selected = selectedItem.value == contentNestedItem.icon || selectedNestedItem == nestedItem,
+                icon = {
+                    BadgedIcon(
+                        painter = painterResource(id = contentNestedItem.icon),
+                        badge = nestedItem.contentNavItem.badge
+                    )
+                },
+                onClick = {
+                    selectedNestedItem = nestedItem
+                    selectedItem.value = contentNestedItem.icon
+                },
+                label = {
+                    Text(contentNestedItem.title)
+                }
+            )
         }
     )
+}
+
+@Composable
+private fun BadgedIcon(
+    painter: Painter,
+    badge: Int?
+) {
+    if (badge != null && badge > 0) {
+        BadgedBox(
+            badge = {
+                Badge { Text(text = badge.toString()) }
+            }
+        ) {
+            Icon(painter = painter, contentDescription = null)
+        }
+    } else {
+        Icon(painter = painter, contentDescription = null)
+    }
 }
