@@ -16,4 +16,5 @@ dependencyResolutionManagement {
 rootProject.name = "bottom-nested-navigation"
 
 include(":app")
+include(":library")
  
