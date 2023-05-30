@@ -23,6 +23,12 @@ android {
 
     buildFeatures.compose = true
     composeOptions.kotlinCompilerExtensionVersion = "1.4.3"
+
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
 }
 
 dependencies {
@@ -30,4 +36,14 @@ dependencies {
 
     api(libs.ui)
     api(libs.material)
+}
+
+publishing {
+    publications {
+        register<MavenPublication>("release") {
+            afterEvaluate {
+                from(components["release"])
+            }
+        }
+    }
 }
