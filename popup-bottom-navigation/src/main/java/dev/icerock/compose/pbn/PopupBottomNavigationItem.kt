@@ -1,4 +1,4 @@
-package dev.icerock.compose.bnn
+package dev.icerock.compose.pbn
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box

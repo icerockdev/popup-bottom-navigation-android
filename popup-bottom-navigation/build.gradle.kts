@@ -2,16 +2,17 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinAndroid)
+    `maven-publish`
 }
 
-android {
-    namespace = "dev.icerock.compose.bnn"
-    compileSdk = 33
+group = "dev.icerock.compose"
+version = "0.1.0"
 
-    defaultConfig {
-        minSdk = 21
-        targetSdk = 33
-    }
+android {
+    namespace = "dev.icerock.compose.pbn"
+    compileSdk = 33
+    defaultConfig.minSdk = 21
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -19,12 +20,14 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
     buildFeatures.compose = true
     composeOptions.kotlinCompilerExtensionVersion = "1.4.3"
 }
 
 dependencies {
     implementation(platform(libs.compose.bom))
+
     api(libs.ui)
     api(libs.material)
 }

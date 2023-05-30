@@ -13,8 +13,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "bottom-nested-navigation"
+rootProject.name = "popup-bottom-navigation-android"
 
 include(":app")
-include(":library")
+include(":popup-bottom-navigation")
  

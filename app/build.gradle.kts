@@ -69,8 +69,7 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.material)
-
-    implementation(project(":library"))
+    implementation(project(":popup-bottom-navigation"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
