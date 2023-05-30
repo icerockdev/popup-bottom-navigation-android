@@ -4,6 +4,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.BottomNavigationDefaults
@@ -72,15 +73,15 @@ fun RowScope.PopupBottomNavigationItem(
         },
         label = label,
         icon = {
-            Box {
-                icon()
+            Box(modifier = Modifier.fillMaxHeight()) {
+                Box(modifier = Modifier.align(Alignment.Center)) {
+                    icon()
+                }
 
                 if (nestedSelectionShow) {
                     val density: Density = LocalDensity.current
                     val offset: IntOffset = remember(density) {
-                        val offsetToTopInDp = 8
-                        val yOffsetInDp: Int = offsetToTopInDp + popupSpacingFromNavigationInDp +
-                                popupHeightInDp
+                        val yOffsetInDp: Int = popupSpacingFromNavigationInDp + popupHeightInDp
                         IntOffset(x = 0, y = -(yOffsetInDp * density.density).toInt())
                     }
                     Popup(

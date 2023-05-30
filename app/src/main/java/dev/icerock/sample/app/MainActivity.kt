@@ -126,13 +126,13 @@ class MainActivity : ComponentActivity() {
                                 Text(text = "Привет курсы")
                             }
                         ),
-//                        ContentNavItem(
-//                            title = "Настройки",
-//                            icon = R.drawable.ic_settings,
-//                            content = {
-//                                Text(text = "Привет настройки")
-//                            }
-//                        )
+                        ContentNavItem(
+                            title = "Настройки",
+                            icon = R.drawable.ic_settings,
+                            content = {
+                                Text(text = "Привет настройки")
+                            }
+                        )
                     )
                 }
                 val selectedItem: MutableState<Int> = remember {
@@ -192,9 +192,9 @@ private fun RowScope.ContentBottomNavItem(
         icon = {
             BadgedIcon(painter = painter, badge = item.badge)
         },
-        label = {
-            Text(text = item.title)
-        }
+//        label = {
+//            NavigationItemTitle(text = item.title)
+//        }
     )
 }
 
@@ -228,9 +228,9 @@ private fun RowScope.NestedBottomNavItem(
         icon = {
             BadgedIcon(painter = painter, badge = badge)
         },
-        label = {
-            Text(text = selectedNestedItem?.contentNavItem?.title ?: item.title)
-        },
+//        label = {
+//            NavigationItemTitle(text = selectedNestedItem?.contentNavItem?.title ?: item.title)
+//        },
         nestedItems = item.nestedItems.map { nestedItem ->
             val contentNestedItem: ContentNavItem = nestedItem.contentNavItem
             PopupNavigationItem(
