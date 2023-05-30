@@ -27,8 +27,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
-import dev.icerock.compose.bnn.BottomNestedNavigationItem
-import dev.icerock.compose.bnn.NestedNavigationItem
+import dev.icerock.compose.bnn.PopupBottomNavigationItem
+import dev.icerock.compose.bnn.PopupNavigationItem
 import dev.icerock.compose.bnn.sample.R
 import dev.icerock.sample.app.ui.theme.SampleTheme
 
@@ -203,7 +203,7 @@ private fun RowScope.NestedBottomNavItem(
     item: NestedNavItem,
     selectedItem: MutableState<Int>
 ) {
-    var selectedNestedItem: NestedNavItem.NestedItem? by remember {
+    var selectedNestedItemId: Int? by remember {
         mutableStateOf(null)
     }
     val nestedContent: List<Int> = remember(item.nestedItems) {
@@ -212,13 +212,18 @@ private fun RowScope.NestedBottomNavItem(
 
     // read painter here because icon block of BottomNavigationItem will be recomposed multiple
     // times for animation
+    val selectedNestedItem: NestedNavItem.NestedItem? =
+        remember(selectedNestedItemId, item.nestedItems) {
+            if (selectedNestedItemId == null) return@remember null
+            item.nestedItems.single { it.contentNavItem.icon == selectedNestedItemId }
+        }
     val painter: Painter = painterResource(id = selectedNestedItem?.selectedIcon ?: item.icon)
     val badge: Int? = remember(item.nestedItems) {
         item.nestedItems.sumOf { it.contentNavItem.badge ?: 0 }
             .takeIf { it != 0 }
     }
 
-    BottomNestedNavigationItem(
+    PopupBottomNavigationItem(
         selected = nestedContent.contains(selectedItem.value),
         icon = {
             BadgedIcon(painter = painter, badge = badge)
@@ -228,21 +233,27 @@ private fun RowScope.NestedBottomNavItem(
         },
         nestedItems = item.nestedItems.map { nestedItem ->
             val contentNestedItem: ContentNavItem = nestedItem.contentNavItem
-            NestedNavigationItem(
+            PopupNavigationItem(
                 selected = selectedItem.value == contentNestedItem.icon || selectedNestedItem == nestedItem,
-                icon = {
-                    BadgedIcon(
-                        painter = painterResource(id = contentNestedItem.icon),
-                        badge = nestedItem.contentNavItem.badge
-                    )
-                },
                 onClick = {
-                    selectedNestedItem = nestedItem
+                    selectedNestedItemId = nestedItem.contentNavItem.icon
                     selectedItem.value = contentNestedItem.icon
                 },
-                label = {
-                    Text(contentNestedItem.title)
-                }
+                content = { selected, onClick ->
+                    BottomNavigationItem(
+                        selected = selected,
+                        onClick = onClick,
+                        icon = {
+                            BadgedIcon(
+                                painter = painterResource(id = nestedItem.contentNavItem.icon),
+                                badge = nestedItem.contentNavItem.badge
+                            )
+                        },
+                        label = {
+                            Text(text = nestedItem.contentNavItem.title)
+                        },
+                    )
+                },
             )
         }
     )

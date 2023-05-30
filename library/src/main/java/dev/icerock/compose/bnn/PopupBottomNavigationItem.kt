@@ -38,10 +38,10 @@ private const val popupWidthPerItemInDp = 80
 private const val popupSpacingFromNavigationInDp = 8
 
 @Composable
-fun RowScope.BottomNestedNavigationItem(
+fun RowScope.PopupBottomNavigationItem(
     selected: Boolean,
     icon: @Composable () -> Unit,
-    nestedItems: List<NestedNavigationItem>,
+    nestedItems: List<PopupNavigationItem>,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     label: @Composable (() -> Unit)? = null,
@@ -67,7 +67,7 @@ fun RowScope.BottomNestedNavigationItem(
         selected = selected,
         onClick = {
             if (allowedShow) nestedSelectionShow = true
-            val selectedItem: NestedNavigationItem? = nestedItems.singleOrNull { it.selected }
+            val selectedItem: PopupNavigationItem? = nestedItems.singleOrNull { it.selected }
             selectedItem?.onClick?.invoke()
         },
         label = label,
@@ -95,7 +95,7 @@ fun RowScope.BottomNestedNavigationItem(
                             }
                         }
                     ) {
-                        NestedNavigationPopup(
+                        PopupNavigation(
                             nestedIcons = nestedItems,
                             dismissPopup = { nestedSelectionShow = false },
                             backgroundColor = popupBackgroundColor,
@@ -110,13 +110,13 @@ fun RowScope.BottomNestedNavigationItem(
 }
 
 @Composable
-private fun NestedNavigationPopup(
-    nestedIcons: List<NestedNavigationItem>,
+private fun PopupNavigation(
+    nestedIcons: List<PopupNavigationItem>,
     dismissPopup: () -> Unit,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = MaterialTheme.colors.primarySurface,
-    contentColor: Color = contentColorFor(backgroundColor),
-    elevation: Dp = BottomNavigationDefaults.Elevation
+    backgroundColor: Color,
+    contentColor: Color,
+    elevation: Dp
 ) {
     Surface(
         modifier = modifier
@@ -129,16 +129,10 @@ private fun NestedNavigationPopup(
     ) {
         Row {
             nestedIcons.forEach { nestedIcon ->
-                BottomNavigationItem(
-                    selected = nestedIcon.selected,
-                    onClick = {
-                        dismissPopup()
-                        nestedIcon.onClick()
-                    },
-                    icon = nestedIcon.icon,
-                    label = nestedIcon.label,
-                    enabled = nestedIcon.enabled
-                )
+                nestedIcon.content(this, nestedIcon.selected) {
+                    dismissPopup()
+                    nestedIcon.onClick()
+                }
             }
         }
     }

@@ -1,13 +1,12 @@
 package dev.icerock.compose.bnn
 
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 
 @Immutable
-data class NestedNavigationItem(
+data class PopupNavigationItem(
     val selected: Boolean,
-    val icon: @Composable () -> Unit,
     val onClick: () -> Unit,
-    val label: @Composable (() -> Unit)? = null,
-    val enabled: Boolean = true,
+    val content: @Composable RowScope.(selected: Boolean, onClick: () -> Unit) -> Unit
 )
