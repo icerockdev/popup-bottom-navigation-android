@@ -21,14 +21,6 @@ android {
         }
     }
 
-    signingConfigs {
-        create("demo") {
-            storeFile = File(rootDir, "release.jks")
-            keyAlias = "key0"
-            keyPassword = "Qwerty1234"
-            storePassword = "Qwerty1234"
-        }
-    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -36,7 +28,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs["demo"]
         }
     }
     compileOptions {
@@ -69,7 +60,7 @@ dependencies {
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.material)
-    implementation(project(":popup-bottom-navigation"))
+    implementation(project(":library"))
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)

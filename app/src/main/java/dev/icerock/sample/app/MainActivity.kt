@@ -27,9 +27,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import dev.icerock.compose.bnn.sample.R
 import dev.icerock.compose.pbn.PopupBottomNavigationItem
 import dev.icerock.compose.pbn.PopupNavigationItem
-import dev.icerock.compose.bnn.sample.R
 import dev.icerock.sample.app.ui.theme.SampleTheme
 
 @Immutable

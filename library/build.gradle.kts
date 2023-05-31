@@ -41,6 +41,8 @@ dependencies {
 publishing {
     publications {
         register<MavenPublication>("release") {
+            artifactId = "popup-bottom-navigation"
+
             afterEvaluate {
                 from(components["release"])
             }

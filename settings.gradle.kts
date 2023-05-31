@@ -13,8 +13,8 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "popup-bottom-navigation-android"
+rootProject.name = "popup-bottom-navigation"
 
 include(":app")
-include(":popup-bottom-navigation")
+include(":library")
  
