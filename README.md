@@ -1,4 +1,4 @@
-[![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0)
+[![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) ![JitPack](https://jitpack.io/v/icerockdev/popup-bottom-navigation-android.svg)
 
 # Popup Bottom Navigation for Android
 
@@ -10,7 +10,8 @@
 ```groovy
 allprojects {
     repositories {
-        mavenCentral()
+        ...
+		maven { url = uri("https://jitpack.io") }
     }
 }
 ```
@@ -18,7 +19,7 @@ allprojects {
 ### project build.gradle
 ```groovy
 dependencies {
-    implementation("dev.icerock.compose:popup-bottom-navigation:0.1.0")
+    implementation("com.github.icerockdev:popup-bottom-navigation-android:0.1.0")
 }
 ```
 
