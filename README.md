@@ -2,8 +2,7 @@
 
 # Popup Bottom Navigation for Android
 
-![android-demo](https://github.com/icerockdev/popup-bottom-navigation-android/assets/5010169/bcc01af9-a231-4be2-b7a3-f8edfd54b318)
-
+![android-demo](https://github.com/icerockdev/popup-bottom-navigation-android/assets/5010169/e610fe28-33c0-4bc7-bdcf-1c5b9137aa82)
 
 ## Installation
 ### root build.gradle
@@ -11,7 +10,7 @@
 allprojects {
     repositories {
         ...
-		maven { url = uri("https://jitpack.io") }
+        maven { url = uri("https://jitpack.io") }
     }
 }
 ```
